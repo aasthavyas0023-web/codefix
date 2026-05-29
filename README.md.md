@@ -95,7 +95,7 @@ Local URL:   http://localhost:8501
 ## 🏗️ Visual Architecture
 
 
-![CodeFix Architecture](docs/architecture_diagram.png)
+![CodeFix Architecture](docs/architecture_diagram.jpg)
 
 The architecture flows through **5 layers**:
 
