@@ -94,7 +94,6 @@ Local URL:   http://localhost:8501
 
 ## 🏗️ Visual Architecture
 
-> Open `docs/architecture_diagram.html` in a browser for the full interactive version, or screenshot it for this README.
 
 ![CodeFix Architecture](docs/architecture_diagram.png)
 
