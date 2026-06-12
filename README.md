@@ -12,12 +12,15 @@
 
 **An AI-powered coding tutor that runs your code, catches the error, and teaches you why it broke — so you never repeat it.**
 
+## 🔗 Live Demo
+https://codefix-6r5ng9w2c5pbdzssqcbivw.streamlit.app
+
+## 🎥 Demo Video
+https://drive.google.com/file/d/1vhtKYZsJQI8BI4HQjhavh7roWa26mAEK/view?usp=drive_link
+
 <br/>
 
 *Built by Team **SheCoders** for Academic Titans Hackathon · Problem Statement AT-01-S4*
-
-</div>
-
 ---
 
 ## 📌 Product Overview
@@ -158,7 +161,9 @@ codefix/
 streamlit>=1.32.0
 requests>=2.31.0
 ```
+## 📄 Documentation
 
+- [Project Documentation PDF](docs/SheCoders_CodeFix_Documentation.pdf)
 ---
 
 ## 👩‍💻 Team — SheCoders
