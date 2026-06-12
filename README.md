@@ -128,14 +128,13 @@ Languages      →  Python 3, C (gcc), C++ (g++)
 
 ![Solve Input - Code](assets/screenshots/solve_input_code.png)
 
-![Solve Input - Concept](assets/screenshots/solve_input_concept.png)
-
 ![Response Breakdown - Code](assets/screenshots/solve_response_code.png)
+
+![Solve Input - Concept](assets/screenshots/solve_input_concept.png)
 
 ![Response Breakdown - Concept](assets/screenshots/solve_response_concept.png)
 
 ![History Tab](assets/screenshots/history.png)
-
 ## 📁 Repository Structure
 
 ```

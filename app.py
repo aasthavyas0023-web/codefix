@@ -5,6 +5,7 @@ import tempfile
 import os
 import sys
 import time
+import json
 from datetime import datetime
 
 st.set_page_config(page_title="CodeFix", page_icon="🎯", layout="wide")
@@ -366,6 +367,8 @@ div[data-testid="stButton"] > button:hover { opacity: 0.85 !important; }
 .resp-card.card-improve { border-left: 3px solid #3b82f6; }
 .resp-card.card-remember{ border-left: 3px solid #7c3aed; }
 .resp-card .rc-body     { font-size: 0.82rem; color: #94a3b8; line-height: 1.65; }
+.resp-card.card-error .rc-body.rc-concept  { font-size: 1rem; line-height: 1.75; }
+.resp-card.card-why .rc-body.rc-analogy    { font-size: 1rem; line-height: 1.75; }
 
 hr { border-color: #1e293b !important; margin: 1rem 0 !important; }
 </style>
@@ -373,10 +376,28 @@ hr { border-color: #1e293b !important; margin: 1rem 0 !important; }
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  Session state
+#  Persistent History — saved to JSON so it survives page refresh
 # ─────────────────────────────────────────────────────────────────────────────
+HISTORY_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "codefix_history.json")
+
+def load_history():
+    try:
+        if os.path.exists(HISTORY_FILE):
+            with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+    except Exception:
+        pass
+    return []
+
+def save_history(history):
+    try:
+        with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+            json.dump(history, f, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
+
 if "history" not in st.session_state:
-    st.session_state.history = []
+    st.session_state.history = load_history()
 if "breakdown" not in st.session_state:
     st.session_state.breakdown = None
 
@@ -384,7 +405,7 @@ if "breakdown" not in st.session_state:
 # ─────────────────────────────────────────────────────────────────────────────
 #  API — Grok (xAI) with retry on rate limit
 # ─────────────────────────────────────────────────────────────────────────────
-GROK_API_KEY = "YOUR_API_KEY_HERE"  # ← paste your gsk_... key here
+GROK_API_KEY = st.secrets["GROK_API_KEY"]
 GROK_URL     = "https://api.groq.com/openai/v1/chat/completions"
 
 def ask_gemini(prompt: str, retries: int = 3) -> str:
@@ -421,14 +442,15 @@ def ask_gemini(prompt: str, retries: int = 3) -> str:
 # ─────────────────────────────────────────────────────────────────────────────
 #  Code runner
 # ─────────────────────────────────────────────────────────────────────────────
-def run_code(code: str, language: str):
+def run_code(code: str, language: str, mock_input: str = None):
     py = "python" if sys.platform == "win32" else "python3"
+    stdin_data = (mock_input.strip() + "\n") if mock_input and mock_input.strip() else None
     try:
         if language == "Python":
             with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as f:
                 f.write(code); src = f.name
             try:
-                r = subprocess.run([py, src], capture_output=True, text=True, timeout=10)
+                r = subprocess.run([py, src], input=stdin_data, capture_output=True, text=True, timeout=10)
                 return r.stdout, r.stderr
             except subprocess.TimeoutExpired:
                 return "", "TimeoutError: execution exceeded 10 seconds."
@@ -447,7 +469,7 @@ def run_code(code: str, language: str):
             cp = subprocess.run([cc, src, "-o", exe], capture_output=True, text=True, timeout=15)
             if cp.returncode != 0:
                 return "", cp.stderr
-            r = subprocess.run([exe], capture_output=True, text=True, timeout=10)
+            r = subprocess.run([exe], input=stdin_data, capture_output=True, text=True, timeout=10)
             return r.stdout, r.stderr
         except subprocess.TimeoutExpired:
             return "", "TimeoutError: execution exceeded 10 seconds."
@@ -465,26 +487,43 @@ def run_code(code: str, language: str):
 #  Prompt builders
 # ─────────────────────────────────────────────────────────────────────────────
 def build_code_prompt(language, level, code, stdout, stderr):
+    if level == "Beginner":
+        level_instructions = """
+STRICT BEGINNER RULES — follow every one:
+- Error Diagnosis: state the error in ONE simple sentence. No jargon. Say the line number and what went wrong in plain English (e.g. "Line 3 has a typo — you wrote 'pirnt' but Python doesn't know that word.").
+- Why This Happened: explain like you are talking to someone who just started coding this week. Use a real-life analogy (e.g. "It's like calling a friend by the wrong name — Python can't find what you're asking for."). Maximum 3 sentences. Zero technical terms.
+- Fixed Code: provide the corrected code with a short comment on the fixed line explaining what changed.
+- Code Improvement: give ONE very basic tip a total beginner can apply immediately (e.g. "Always double-check spelling of function names before running.").
+- Remember This: one short friendly sentence with no jargon (e.g. "Python reads exactly what you type — even one wrong letter causes an error.").
+"""
+    else:
+        level_instructions = """
+STRICT INTERMEDIATE RULES — follow every one:
+- Error Diagnosis: state the error type, the exact line, and the specific cause with correct technical terminology (e.g. "NameError on line 3: identifier 'pirnt' is not defined in the current namespace.").
+- Why This Happened: explain the underlying mechanism — how Python's name resolution / memory model / type system causes this error. Reference relevant concepts (scope, stack, type coercion, pointer arithmetic, etc.). Minimum 3 technical sentences.
+- Fixed Code: provide the corrected code. Add an inline comment explaining WHY the fix works at a technical level.
+- Code Improvement: suggest a meaningful best practice — e.g. use of linters, exception handling patterns, memory management, time complexity improvement, or PEP8/style standards.
+- Remember This: a concise technical rule the student can recall in an exam or interview (e.g. "Python resolves names using LEGB scope — Local → Enclosing → Global → Built-in.").
+"""
+
     return f"""
-You are CodeFix, an AI coding tutor for 1st/2nd year engineering students learning {language} at {level} level.
+You are CodeFix, an AI coding tutor for 1st/2nd year engineering students learning {language}.
+The student selected level: {level}.
 The student's code was executed automatically. Real output and errors are captured below.
 
-Respond using EXACTLY these bold headings and nothing else:
+{level_instructions}
+
+Respond using EXACTLY these bold headings in this order and nothing else:
 
 **Error Diagnosis**
-The exact bug and line number.
 
 **Why This Happened**
-Root cause explained for a {level} student (simple language for Beginner, technical for Intermediate).
 
 **Fixed Code**
-Complete corrected code only — no prose, just the code block.
 
 **Code Improvement**
-One concrete suggestion for a better coding habit.
 
 **Remember This**
-One short sentence the student can memorize.
 
 ---
 {language} Code:
@@ -498,22 +537,38 @@ Runtime Error:
 """
 
 def build_concept_prompt(language, level, question):
-    return f"""
-You are CodeFix, an AI coding tutor for 1st/2nd year engineering students studying {language} at {level} level.
+    if level == "Beginner":
+        level_instructions = """
+STRICT BEGINNER RULES — follow every one:
+- Concept Explanation: explain in the simplest possible words as if the student has never heard this term before. No technical jargon. Use short sentences. Maximum 4 sentences.
+- Example: write the shortest possible working {language} code that shows the concept. Add a comment on every line explaining what it does in plain English.
+- Real-World Analogy: give a fun, relatable analogy from daily life (food, school, mobile phones, etc.) that makes the concept click instantly.
+- Remember This: one simple sentence with zero technical words that a beginner can repeat to themselves.
+""".format(language=language)
+    else:
+        level_instructions = """
+STRICT INTERMEDIATE RULES — follow every one:
+- Concept Explanation: give a precise technical definition. Explain the internal mechanism — how it works under the hood (memory, call stack, compiler behaviour, etc.). Use correct CS terminology. Minimum 4 sentences.
+- Example: write a non-trivial {language} code example that demonstrates an advanced or edge-case use of the concept. Add inline comments explaining the technical behaviour at each step.
+- Real-World Analogy: use a technical or engineering analogy (e.g. CPU pipelines, database transactions, network packets) that connects to the CS concept at a deeper level.
+- Remember This: a precise technical rule or formula the student can use in an exam or technical interview.
+""".format(language=language)
 
-Respond using EXACTLY these bold headings and nothing else:
+    return f"""
+You are CodeFix, an AI coding tutor for 1st/2nd year engineering students studying {language}.
+The student selected level: {level}.
+
+{level_instructions}
+
+Respond using EXACTLY these bold headings in this order and nothing else:
 
 **Concept Explanation**
-Clear explanation matched to {level} level.
 
 **Example**
-Short working {language} code demonstrating the concept.
 
 **Real-World Analogy**
-A simple, relatable analogy for a college student.
 
 **Remember This**
-One short sentence to recall during an exam.
 
 ---
 Student's Doubt:
@@ -697,6 +752,31 @@ with tab_solve:
             )
             user_question = ""
 
+            # ── Show sample input box if code uses input()/scanf/cin ──────────
+            import re as _re
+            _has_input = bool(
+                (language == "Python" and _re.search(r'input\s*\(', user_code)) or
+                (language == "C"      and _re.search(r'scanf\s*\(', user_code)) or
+                (language == "C++"    and _re.search(r'cin\s*>>',   user_code))
+            )
+            if _has_input:
+                st.markdown("""
+                <div style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.3);
+                border-radius:8px;padding:0.6rem 0.8rem;margin-top:0.5rem;font-size:0.75rem;color:#a78bfa;">
+                    💡 <strong style="color:#c4b5fd;">Input detected</strong> — enter sample value(s) below
+                    so CodeFix can run your code (one value per line)
+                </div>
+                """, unsafe_allow_html=True)
+                mock_input_str = st.text_area(
+                    "sample_input",
+                    placeholder="e.g.  5",
+                    height=80,
+                    label_visibility="collapsed",
+                    key="mock_input_box"
+                )
+            else:
+                mock_input_str = ""
+
         else:
             st.markdown("""
             <div class="editor-topbar">
@@ -736,11 +816,22 @@ with tab_solve:
             st.warning("Type your doubt first.")
             st.stop()
 
+        # ── Fix 3: Input character limit ──────────────────────────────────────
+        MAX_CODE_CHARS    = 3000
+        MAX_CONCEPT_CHARS = 500
+        if mode == "Code Doubt" and len(user_code) > MAX_CODE_CHARS:
+            st.warning(f"⚠️ Your code is too long ({len(user_code)} characters). Please paste a maximum of {MAX_CODE_CHARS} characters so CodeFix can analyse it properly.")
+            st.stop()
+        if mode == "Concept Doubt" and len(user_question) > MAX_CONCEPT_CHARS:
+            st.warning(f"⚠️ Your question is too long ({len(user_question)} characters). Please keep it under {MAX_CONCEPT_CHARS} characters for the best response.")
+            st.stop()
+
+        stdout_cap = stderr_cap = ""
         stdout_cap = stderr_cap = ""
 
         if mode == "Code Doubt":
             with st.spinner("⚙️ Running your code…"):
-                stdout_cap, stderr_cap = run_code(user_code, language)
+                stdout_cap, stderr_cap = run_code(user_code, language, mock_input=mock_input_str if mock_input_str.strip() else None)
             prompt = build_code_prompt(language, level, user_code, stdout_cap, stderr_cap)
         else:
             prompt = build_concept_prompt(language, level, user_question)
@@ -767,6 +858,7 @@ with tab_solve:
             "time":     datetime.now().strftime("%H:%M"),
         }
         st.session_state.history.append(entry)
+        save_history(st.session_state.history)
         st.session_state.breakdown = {
             "mode":     "Code" if mode == "Code Doubt" else "Concept",
             "language": language,
@@ -804,17 +896,27 @@ with tab_solve:
 
             st.markdown("---")
 
-            st.markdown(f'''
-            <div class="resp-card card-error">
-                <div class="rc-head"><span class="rc-icon">🔴</span><span class="rc-title">Error Diagnosis</span></div>
-                <div class="rc-body">{secs.get("Error Diagnosis","—")}</div>
-            </div>''', unsafe_allow_html=True)
+            # ── Fix 2: Show clean-run card if no errors ───────────────────────
+            code_ran_clean = not bd["stderr"].strip()
+            if code_ran_clean:
+                st.markdown(f'''
+                <div class="resp-card card-fix">
+                    <div class="rc-head"><span class="rc-icon">✅</span><span class="rc-title">Code Ran Successfully</span></div>
+                    <div class="rc-body">Your code executed without any errors! CodeFix has reviewed it and provided improvement suggestions below.</div>
+                </div>''', unsafe_allow_html=True)
+            else:
+                st.markdown(f'''
+                <div class="resp-card card-error">
+                    <div class="rc-head"><span class="rc-icon">🔴</span><span class="rc-title">Error Diagnosis</span></div>
+                    <div class="rc-body">{secs.get("Error Diagnosis","—")}</div>
+                </div>''', unsafe_allow_html=True)
 
-            st.markdown(f'''
-            <div class="resp-card card-why">
-                <div class="rc-head"><span class="rc-icon">🔍</span><span class="rc-title">Why This Happened</span></div>
-                <div class="rc-body">{secs.get("Why This Happened","—")}</div>
-            </div>''', unsafe_allow_html=True)
+            if not code_ran_clean:
+                st.markdown(f'''
+                <div class="resp-card card-why">
+                    <div class="rc-head"><span class="rc-icon">🔍</span><span class="rc-title">Why This Happened</span></div>
+                    <div class="rc-body">{secs.get("Why This Happened","—")}</div>
+                </div>''', unsafe_allow_html=True)
 
             st.markdown('''
             <div class="resp-card card-fix">
@@ -838,7 +940,7 @@ with tab_solve:
             st.markdown(f'''
             <div class="resp-card card-error">
                 <div class="rc-head"><span class="rc-icon">💡</span><span class="rc-title">Concept Explanation</span></div>
-                <div class="rc-body">{secs.get("Concept Explanation","—")}</div>
+                <div class="rc-body" style="font-size:1rem;line-height:1.8;">{secs.get("Concept Explanation","—")}</div>
             </div>''', unsafe_allow_html=True)
 
             st.markdown('''
@@ -850,7 +952,7 @@ with tab_solve:
             st.markdown(f'''
             <div class="resp-card card-why">
                 <div class="rc-head"><span class="rc-icon">🌍</span><span class="rc-title">Real-World Analogy</span></div>
-                <div class="rc-body">{secs.get("Real-World Analogy","—")}</div>
+                <div class="rc-body" style="font-size:1rem;line-height:1.8;">{secs.get("Real-World Analogy","—")}</div>
             </div>''', unsafe_allow_html=True)
 
             st.markdown(f'''

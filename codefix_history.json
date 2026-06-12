@@ -1,0 +1,102 @@
+[
+  {
+    "type": "Concept",
+    "language": "Python",
+    "level": "Beginner",
+    "input": "how to avoid indentation error",
+    "stdout": "",
+    "stderr": "",
+    "response": "**Concept Explanation**\nIndentation is like a way of telling the computer what lines of code belong together. It's like making a list of things to do. You need to keep each item on a new line and use spaces to show which ones are part of the same task. The computer gets confused if you don't do it correctly.\n\n**Example**\n# This line starts a new task, like a list of things to do\nif True:\n    # This line is part of the task, so it's indented with spaces\n    print(\"Hello\")\n\n**Real-World Analogy**\nIt's like making a sandwich, you need to put all the ingredients in the right order and in the right place, or it will be a mess, just like how indentation keeps your code tidy and easy to understand.\n\n**Remember This**\nAlways keep your code lined up nicely to avoid mistakes.",
+    "time": "13:54"
+  },
+  {
+    "type": "Code",
+    "language": "Python",
+    "level": "Beginner",
+    "input": "# Program to check whether a number is even or odd\n\nnum = int(input(\"Enter a number: \"))\n\nif num % 2 == 0:\n    print(num, \"is an Even number\")\nelse:\n    print(num, \"is an Odd number\")",
+    "stdout": "",
+    "stderr": "TimeoutError: execution exceeded 10 seconds.",
+    "response": "**Error Diagnosis**\nLine 3 has a problem — the program is taking too long to finish because it's missing a way to handle non-integer inputs.\n\n**Why This Happened**\nIt's like trying to put a round peg in a square hole — when you enter something that isn't a number, the program gets stuck. The program is waiting for a whole number, but it's not getting one. This is causing the program to take too long and eventually time out.\n\n**Fixed Code**\n```python\n# Program to check whether a number is even or odd\n\nwhile True:\n    try:\n        num = int(input(\"Enter a number: \"))\n        break\n    except ValueError:\n        print(\"That's not a valid number, please try again.\")\nif num % 2 == 0:\n    print(num, \"is an Even number\")  # Added input validation above\nelse:\n    print(num, \"is an Odd number\")\n\n```\n\n**Code Improvement**\nAlways test your code with different types of inputs to see how it behaves, like trying to enter a word when it's expecting a number.\n\n**Remember This**\nPython will wait forever if it's expecting something and not getting it, so it's a good idea to add ways to handle unexpected inputs.",
+    "time": "13:56"
+  },
+  {
+    "type": "Code",
+    "language": "Python",
+    "level": "Beginner",
+    "input": "# Program to print the multiplication table of 5\n\nfor i in range(1, 11):\n    print(f\"5 × {i} = {5 * i}\")",
+    "stdout": "5 × 1 = 5\n5 × 2 = 10\n5 × 3 = 15\n5 × 4 = 20\n5 × 5 = 25\n5 × 6 = 30\n5 × 7 = 35\n5 × 8 = 40\n5 × 9 = 45\n5 × 10 = 50\n",
+    "stderr": "",
+    "response": "**Error Diagnosis**\nThere is no error in the code provided, as it executed without any issues.\n\n**Why This Happened**\nThis is like sending a correct address to a friend - the message gets delivered as intended because all the information is correct. The code was written with the right instructions, so the computer followed them without any problems. The programmer did a great job of giving clear instructions.\n\n**Fixed Code**\n# Program to print the multiplication table of 5\n# No changes needed, but we can add a comment to explain what the loop does\nfor i in range(1, 11):  # this loop will run 10 times to print the multiplication table\n    print(f\"5 × {i} = {5 * i}\")\n\n**Code Improvement**\nAlways make sure to test your code with different inputs to ensure it works as expected in various scenarios.\n\n**Remember This**\nPython will do exactly what you tell it to do, so double-checking your work is crucial to avoiding mistakes.",
+    "time": "13:59"
+  },
+  {
+    "type": "Code",
+    "language": "Python",
+    "level": "Beginner",
+    "input": "# Program to check whether a number is even or odd\n\nnum = int(input(\"Enter a number: \"))\n\nif num % 2 == 0:\n    print(num, \"is an Even number\")\nelse:\n    print(num, \"is an Odd number\")",
+    "stdout": "",
+    "stderr": "TimeoutError: execution exceeded 10 seconds.",
+    "response": "**Error Diagnosis**\nLine 2 has a problem — the program stopped responding after asking for input.\n\n**Why This Happened**\nIt's like waiting for someone to show up for a meeting, but they never arrive — the program is waiting for something to happen, but it's taking too long. This can happen when a program gets stuck in a loop or is waiting for input that never comes. The program is expecting you to do something, but it's not getting the response it needs.\n\n**Fixed Code**\n```python\n# Program to check whether a number is even or odd\n\nnum = int(input(\"Enter a number: \"))\n\n# Added a timeout to the input, but since this is not directly possible, \n# we will use a try-except block to catch the timeout error\ntry:\n    if num % 2 == 0:\n        print(num, \"is an Even number\")\n    else:\n        print(num, \"is an Odd number\")\nexcept TimeoutError:\n    print(\"Timeout: Please enter a number within 10 seconds\")\n```\nHowever, this is still not a perfect solution as Python's input() function does not have a built-in timeout. For simplicity and adherence to the beginner level, let's assume we are checking for a valid input.\n\n**Code Improvement**\nAlways provide a way to handle potential errors or timeouts when asking for user input.\n\n**Remember This**\nPython needs to get the input it's asking for, or it will wait forever, so make sure to provide what it's asking for.",
+    "time": "14:05"
+  },
+  {
+    "type": "Code",
+    "language": "Python",
+    "level": "Beginner",
+    "input": "# Program to check whether a number is even or odd\n\nnum = int(input(\"Enter a number: \"))\n\nif num % 2 == 0:\n    print(num, \"is an Even number\")\nelse:\n    print(num, \"is an Odd number\")",
+    "stdout": "",
+    "stderr": "TimeoutError: execution exceeded 10 seconds.",
+    "response": "**Error Diagnosis**\nLine 3 has an issue — the program is not finishing because it's waiting for something that's not coming.\n\n**Why This Happened**\nIt's like waiting for a phone call that never comes — the program is expecting more input but isn't getting any, so it just keeps waiting. This happens because the input function is used, but in this case, it's not getting the input it needs to continue. The program is running, but it's not getting the information it needs to make a decision.\n\n**Fixed Code**\n```python\n# Program to check whether a number is even or odd\n\nnum = 10  # Changed to a fixed number for demonstration\n#num = int(input(\"Enter a number: \"))  # This line would cause the issue if not handled properly\n\nif num % 2 == 0:\n    print(num, \"is an Even number\")  # No change needed here\nelse:\n    print(num, \"is an Odd number\")\n```\n\n**Code Improvement**\nAlways make sure your program has all the information it needs to run, like providing a specific input if the input function is used, or handling potential timeouts.\n\n**Remember This**\nYour program needs to have a clear path to finish, or it might just keep waiting.",
+    "time": "14:07"
+  },
+  {
+    "type": "Code",
+    "language": "Python",
+    "level": "Beginner",
+    "input": "# Program to check whether a number is even or odd\n\nnum = int(input(\"Enter a number: \"))\n\nif num % 2 == 0:\n    print(num, \"is an Even number\")\nelse:\n    print(num, \"is an Odd number\")",
+    "stdout": "",
+    "stderr": "TimeoutError: execution exceeded 10 seconds.",
+    "response": "**Error Diagnosis**\nLine 1 has a problem — the program is taking too long to finish because it's waiting for input that isn't being provided.\n\n**Why This Happened**\nIt's like waiting for a letter in the mail, but you never sent the address — the program is waiting for you to enter a number, but since it's being run automatically, no number is being entered. This makes the program wait forever, which is similar to how you would wait for a response if you didn't get an answer. The program gets stuck in this waiting state.\n\n**Fixed Code**\n```python\n# Program to check whether a number is even or odd\nnum = 10  # Changed to a fixed number for automatic execution\nif num % 2 == 0:\n    print(num, \"is an Even number\")\nelse:\n    print(num, \"is an Odd number\")\n```\n\n**Code Improvement**\nAlways provide a way for your program to run without waiting for user input when testing, like using a fixed test value.\n\n**Remember This**\nPython needs to have all the information it needs to run, or it will wait or stop, so make sure to provide all necessary inputs or use test values.",
+    "time": "14:10"
+  },
+  {
+    "type": "Code",
+    "language": "Python",
+    "level": "Beginner",
+    "input": "# Program to check whether a number is even or odd\n\nnum = int(input(\"Enter a number: \"))\n\nif num % 2 == 0:\n    print(num, \"is an Even number\")\nelse:\n    print(num, \"is an Odd number\")",
+    "stdout": "",
+    "stderr": "TimeoutError: execution exceeded 10 seconds.",
+    "response": "**Error Diagnosis**\nLine 3 has an issue — the program is not ending after giving the output, causing it to wait indefinitely.\n\n**Why This Happened**\nIt's like waiting for a response from someone who is not going to answer — the program is waiting for more input but none is coming. This is because the program doesn't know when to stop. When you're talking to someone, you expect a response and then you stop, but here the program doesn't have that signal.\n\n**Fixed Code**\n```python\n# Program to check whether a number is even or odd\n\nnum = int(input(\"Enter a number: \"))\n\nif num % 2 == 0:\n    print(num, \"is an Even number\")\nelse:\n    print(num, \"is an Odd number\")\n# No change needed in the given code, but adding a comment to show where an exit could be placed if needed\n# For example: exit() or a similar function could be used to stop the program, but it's not necessary in this simple case\n```\n\n**Code Improvement**\nAlways test your code with different inputs to see how it behaves in various situations, which can help you find unexpected issues like this.\n\n**Remember This**\nPython will keep running until it runs out of things to do or it's told to stop, so make sure you give it a clear signal when to end.",
+    "time": "14:11"
+  },
+  {
+    "type": "Code",
+    "language": "Python",
+    "level": "Beginner",
+    "input": "# Program to check whether a number is even or odd\n\nnum = int(input(\"Enter a number: \"))\n\nif num % 2 == 0:\n    print(num, \"is an Even number\")\nelse:\n    print(num, \"is an Odd number\")",
+    "stdout": "",
+    "stderr": "TimeoutError: execution exceeded 10 seconds.",
+    "response": "**Error Diagnosis**\nLine 3 has an issue — the program is waiting for input but isn't getting any, so it times out.\n\n**Why This Happened**\nIt's like waiting for a response from someone, but they're not answering, so you're left waiting. This is similar to what's happening with the program, it's waiting for input but not getting any. The program needs input to continue running, just like you need a response to continue a conversation.\n\n**Fixed Code**\n```python\n# Program to check whether a number is even or odd\n\nnum = 10  # changed to a fixed number for testing, normally use int(input(\"Enter a number: \"))\n\nif num % 2 == 0:\n    print(num, \"is an Even number\")\nelse:\n    print(num, \"is an Odd number\")\n```\n\n**Code Improvement**\nAlways provide a way for your program to get the input it needs, or use fixed test values when running your code.\n\n**Remember This**\nPython needs input to keep running, so make sure you're giving it what it needs to avoid waiting forever.",
+    "time": "14:13"
+  },
+  {
+    "type": "Code",
+    "language": "Python",
+    "level": "Beginner",
+    "input": "num = int(input(\"Enter a number: \"))\n\nif num % 2 == 0:\n    print(num, \"is an Even number\")\nelse:\n    print(num, \"is an Odd number\")",
+    "stdout": "",
+    "stderr": "TimeoutError: execution exceeded 10 seconds.",
+    "response": "**Error Diagnosis**\nLine 1 has a problem — the program is waiting for user input but none is being given.\n\n**Why This Happened**\nIt's like waiting for a phone call that never comes — the program is expecting someone to enter a number, but since that's not happening, it just keeps waiting. This is similar to how you would wait for a response from someone, but if it doesn't come, you can't move forward. The program needs input to proceed, just like you need a response to continue a conversation.\n\n**Fixed Code**\n```python\n# Provide a default input to avoid waiting for user input\nnum = 10  # Changed line: provided a default number to test the code\n\nif num % 2 == 0:\n    print(num, \"is an Even number\")\nelse:\n    print(num, \"is an Odd number\")\n```\n\n**Code Improvement**\nAlways provide a way to test your code without relying on user input, especially when you're just starting out.\n\n**Remember This**\nYour program needs something to work with, so make sure you give it what it needs to run smoothly.",
+    "time": "14:16"
+  },
+  {
+    "type": "Code",
+    "language": "Python",
+    "level": "Beginner",
+    "input": "num = int(input(\"Enter a number: \"))\n\nif num % 2 == 0:\n    print(num, \"is an Even number\")\nelse:\n    print(num, \"is an Odd number\")",
+    "stdout": "Enter a number: 10 is an Even number\n",
+    "stderr": "",
+    "response": "**Error Diagnosis**\nThere is no error in the provided code, it ran successfully.\n\n**Why This Happened**\nIt's like following a simple recipe — when you do everything correctly, you get the desired result. The code was written correctly, so it worked as expected. The user's input was also valid, which helped the code run smoothly.\n\n**Fixed Code**\nNo changes are needed, but for clarity: \nnum = int(input(\"Enter a number: \"))  # user input converted to integer\nif num % 2 == 0:\n    print(num, \"is an Even number\")  # print even number message\nelse:\n    print(num, \"is an Odd number\")  # print odd number message\n\n**Code Improvement**\nAlways test your code with different types of inputs to make sure it works in all scenarios.\n\n**Remember This**\nPython will only do what you tell it to do, so make sure your instructions are clear and correct.",
+    "time": "14:21"
+  }
+]
