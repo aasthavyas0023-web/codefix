@@ -16,7 +16,7 @@
 https://codefix-6r5ng9w2c5pbdzssqcbivw.streamlit.app
 
 ## 🎥 Demo Video
-https://drive.google.com/file/d/1vhtKYZsJQI8BI4HQjhavh7roWa26mAEK/view?usp=drive_link
+https://drive.google.com/file/d/1_eRFmXELfVB-JTu8HIbQ3Ytlqlc60xLO/view?usp=sharing
 
 <br/>
 
