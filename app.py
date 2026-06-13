@@ -506,12 +506,20 @@ STRICT INTERMEDIATE RULES — follow every one:
 - Remember This: a concise technical rule the student can recall in an exam or interview (e.g. "Python resolves names using LEGB scope — Local → Enclosing → Global → Built-in.").
 """
 
-    return f"""
+return f"""
 You are CodeFix, an AI coding tutor for 1st/2nd year engineering students learning {language}.
 The student selected level: {level}.
 The student's code was executed automatically. Real output and errors are captured below.
 
 {level_instructions}
+
+VERY IMPORTANT: Even if there are NO runtime errors and NO compiler errors, you MUST still:
+- Carefully read every line of the code
+- Check for logic errors (wrong loop bounds, wrong starting index, off-by-one mistakes)
+- Check for semantic errors (code runs but gives wrong or unexpected output)
+- Check for undefined behavior (division by zero, array out of bounds in C/C++)
+- Check for bad coding habits or inefficient patterns
+Do NOT just say "code ran successfully" — always diagnose deeply even for clean-running code.
 
 Respond using EXACTLY these bold headings in this order and nothing else:
 
@@ -533,7 +541,7 @@ Execution Output:
 {stdout.strip() if stdout.strip() else "(no output)"}
 
 Runtime Error:
-{stderr.strip() if stderr.strip() else "(none — code ran clean)"}
+{stderr.strip() if stderr.strip() else "(none — but check the code carefully for logic errors, wrong output, or undefined behavior)"}
 """
 
 def build_concept_prompt(language, level, question):
